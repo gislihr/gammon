@@ -1,0 +1,19 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type Player {
+  id: ID!
+  name: String!
+  elo: Int!
+}
+
+type Query {
+  player(id: Int!): Player!
+  players: [Player!]!
+}
+
+type Mutation {
+  addPlayer(name: String!): Player!
+}
+
