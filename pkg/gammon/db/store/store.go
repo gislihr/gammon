@@ -11,10 +11,10 @@ type Store struct {
 	db *sqlx.DB
 }
 
-func NewStore(db *sqlx.DB) (*Store, error) {
+func NewStore(db *sqlx.DB) *Store {
 	return &Store{
 		db: db,
-	}, nil
+	}
 }
 
 type PlayerRequest struct {
