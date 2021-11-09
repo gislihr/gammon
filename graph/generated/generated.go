@@ -46,7 +46,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Game struct {
-		ID     func(childComplexity int) int
+		Id     func(childComplexity int) int
 		Length func(childComplexity int) int
 		Loser  func(childComplexity int) int
 		Winner func(childComplexity int) int
@@ -101,11 +101,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	switch typeName + "." + field {
 
 	case "Game.id":
-		if e.complexity.Game.ID == nil {
+		if e.complexity.Game.Id == nil {
 			break
 		}
 
-		return e.complexity.Game.ID(childComplexity), true
+		return e.complexity.Game.Id(childComplexity), true
 
 	case "Game.length":
 		if e.complexity.Game.Length == nil {
@@ -469,7 +469,7 @@ func (ec *executionContext) _Game_id(ctx context.Context, field graphql.Collecte
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
+		return obj.Id, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -481,9 +481,9 @@ func (ec *executionContext) _Game_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Game_loser(ctx context.Context, field graphql.CollectedField, obj *model.Game) (ret graphql.Marshaler) {
@@ -663,9 +663,9 @@ func (ec *executionContext) _Player_id(ctx context.Context, field graphql.Collec
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Player_name(ctx context.Context, field graphql.CollectedField, obj *model1.Player) (ret graphql.Marshaler) {
@@ -2713,13 +2713,13 @@ func (ec *executionContext) marshalNGame2ᚖgithubᚗcomᚋgislihrᚋgammonᚋpk
 	return ec._Game(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalIntID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalIntID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
