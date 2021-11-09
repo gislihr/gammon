@@ -1,6 +1,6 @@
 package graph
 
-import "github.com/gislihr/gammon/store"
+import "github.com/gislihr/gammon/pkg/gammon/db/store"
 
 // This file will not be regenerated automatically.
 //

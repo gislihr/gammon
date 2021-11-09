@@ -9,8 +9,8 @@ import (
 
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/graph/model"
+	"github.com/gislihr/gammon/pkg/gammon/db/store"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
-	"github.com/gislihr/gammon/store"
 )
 
 func (r *gameResolver) Loser(ctx context.Context, obj *internalModel.Game) (*model.Player, error) {

@@ -9,7 +9,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gislihr/gammon/graph"
 	"github.com/gislihr/gammon/graph/generated"
-	"github.com/gislihr/gammon/store"
+	"github.com/gislihr/gammon/pkg/gammon/db/store"
 	"github.com/jmoiron/sqlx"
 )
 
