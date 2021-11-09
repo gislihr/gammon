@@ -22,7 +22,7 @@ func main() {
 		port = defaultPort
 	}
 
-	db, err := sqlx.Connect("postgres", "host=localhost port=5432 sslmode=disable user=user password=pass database=gammon")
+	db, err := sqlx.Connect("postgres", "host=localhost port=6432 sslmode=disable user=user password=pass database=gammon")
 	if err != nil {
 		panic(err)
 	}

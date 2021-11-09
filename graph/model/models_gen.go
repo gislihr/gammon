@@ -3,7 +3,10 @@
 package model
 
 type Player struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-	Elo  int    `json:"elo"`
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	ShortName   string  `json:"shortName"`
+	Email       *string `json:"email"`
+	Elo         float64 `json:"elo"`
+	Experiennce int     `json:"experiennce"`
 }
