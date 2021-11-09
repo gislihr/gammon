@@ -5,12 +5,23 @@
 type Player {
   id: ID!
   name: String!
-  elo: Int!
+  shortName: String!
+  email: String
+  elo: Float!
+  experiennce: Int!
+}
+
+type Game {
+  id: ID!
+  loser: Player!
+  winner: Player!
+  length: Int!
 }
 
 type Query {
   player(id: Int!): Player!
-  players: [Player!]!
+  players(limit: Int!, offset: Int!): [Player!]!
+  games(limit: Int!, offset: Int!): [Game!]!
 }
 
 type Mutation {
