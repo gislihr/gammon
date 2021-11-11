@@ -9,6 +9,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.3
+	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e
 	github.com/vektah/gqlparser/v2 v2.2.0
 )
 
@@ -33,7 +34,6 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
 	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/urfave/cli/v2 v2.1.1 // indirect
-	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20211013075003-97ac67df715c // indirect
 	golang.org/x/tools v0.1.5 // indirect
