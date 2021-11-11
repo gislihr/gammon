@@ -1,5 +1,5 @@
-make dev:
+dev:
 	go run github.com/cosmtrek/air
 
-make gqlgen:
+gqlgen:
 	go run github.com/99designs/gqlgen generate
