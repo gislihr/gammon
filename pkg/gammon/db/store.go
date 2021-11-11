@@ -24,8 +24,10 @@ type PlayerRequest struct {
 }
 
 type GameRequest struct {
-	Offset int
-	Limit  int
+	Offset   int
+	Limit    int
+	WinnerId *int
+	LoserId  *int
 }
 
 type player struct {
@@ -61,30 +63,54 @@ func playersToModels(ps []player) []*model.Player {
 }
 
 type game struct {
-	Id          int    `db:"id"`
-	WinnerId    int    `db:"winner_id"`
-	LoserId     int    `db:"loser_id"`
-	Length      int    `db:"length"`
-	Round       int    `db:"round"`
-	Created     string `db:"created"`
-	WinnerScore *int   `db:"score_winner"`
-	LoserScore  *int   `db:"score_loser"`
+	Id           int    `db:"id"`
+	WinnerId     int    `db:"winner_id"`
+	LoserId      int    `db:"loser_id"`
+	Length       int    `db:"length"`
+	Round        int    `db:"round"`
+	Created      string `db:"created"`
+	WinnerScore  *int   `db:"score_winner"`
+	LoserScore   *int   `db:"score_loser"`
+	TournamentId int    `db:"tournament_id"`
 }
 
 var gameFields = []string{
-	"id", "winner_id", "loser_id", "length", "round", "created", "score_winner", "score_loser",
+	"id", "winner_id", "loser_id", "length", "round", "created", "score_winner", "score_loser", "tournament_id",
+}
+
+type tournament struct {
+	Id       int    `db:"id"`
+	Date     string `db:"date"`
+	Location string `db:"location"`
+	Name     string `db:"name"`
+	Open     bool   `db:"open"`
+}
+
+var tournamentFields = []string{
+	"id", "date", "location", "name", "open",
+}
+
+func (t tournament) toModel() *model.Tournament {
+	return &model.Tournament{
+		ID:       t.Id,
+		Date:     t.Date,
+		Location: t.Location,
+		Name:     t.Name,
+		Open:     t.Open,
+	}
 }
 
 func (g game) toModel() *internalModel.Game {
 	return &internalModel.Game{
-		Id:          g.Id,
-		WinnerId:    g.WinnerId,
-		LoserId:     g.LoserId,
-		Length:      g.Length,
-		Round:       g.Round,
-		Created:     g.Created,
-		WinnerScore: g.WinnerScore,
-		LoserScore:  g.LoserScore,
+		Id:           g.Id,
+		WinnerId:     g.WinnerId,
+		LoserId:      g.LoserId,
+		Length:       g.Length,
+		Round:        g.Round,
+		Created:      g.Created,
+		WinnerScore:  g.WinnerScore,
+		LoserScore:   g.LoserScore,
+		TournamentId: g.TournamentId,
 	}
 }
 
@@ -118,12 +144,33 @@ func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
 
 func (s *Store) GetGames(gr GameRequest) ([]*internalModel.Game, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err :=
-		psql.Select(gameFields...).From("game").Limit(uint64(gr.Limit)).Offset(uint64(gr.Offset)).OrderBy("created desc").ToSql()
+	queryBuilder := psql.Select(gameFields...).From("game").Limit(uint64(gr.Limit)).Offset(uint64(gr.Offset)).OrderBy("created desc")
+
+	if gr.WinnerId != nil {
+		queryBuilder = queryBuilder.Where(sq.Eq{"winner_id": gr.WinnerId})
+	}
+
+	if gr.LoserId != nil {
+		queryBuilder = queryBuilder.Where(sq.Eq{"loser_id": gr.LoserId})
+	}
+
+	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return nil, err
 	}
 	var res []game
 	err = s.db.Select(&res, query, args...)
 	return gamesToModels(res), err
+}
+
+func (s Store) GetTournament(id int) (*model.Tournament, error) {
+	var res tournament
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query, args, err := psql.Select(tournamentFields...).From("tournament").Where(sq.Eq{"id": id}).ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.Get(&res, query, args...)
+	return res.toModel(), err
 }

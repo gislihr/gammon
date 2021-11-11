@@ -2,6 +2,14 @@
 #
 # https://gqlgen.com/getting-started/
 
+type Tournament {
+  id: ID!
+  date: String!
+  location: String!
+  name: String!
+  open: Boolean!
+}
+
 type Player {
   id: ID!
   name: String!
@@ -9,6 +17,13 @@ type Player {
   email: String
   elo: Float!
   experiennce: Int!
+}
+
+input GameRequest {
+  limit: Int
+  offset: Int
+  winnerId: Int
+  loserId: Int
 }
 
 type Game {
@@ -20,12 +35,13 @@ type Game {
   created: String!
   winnerScore: Int
   loserScore: Int
+  tournament: Tournament!
 }
 
 type Query {
   player(id: Int!): Player!
   players(limit: Int!, offset: Int!): [Player!]!
-  games(limit: Int!, offset: Int!): [Game!]!
+  games(request: GameRequest): [Game!]!
 }
 
 type Mutation {

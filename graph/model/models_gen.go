@@ -2,6 +2,13 @@
 
 package model
 
+type GameRequest struct {
+	Limit    *int `json:"limit"`
+	Offset   *int `json:"offset"`
+	WinnerID *int `json:"winnerId"`
+	LoserID  *int `json:"loserId"`
+}
+
 type Player struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
@@ -9,4 +16,12 @@ type Player struct {
 	Email       *string `json:"email"`
 	Elo         float64 `json:"elo"`
 	Experiennce int     `json:"experiennce"`
+}
+
+type Tournament struct {
+	ID       int    `json:"id"`
+	Date     string `json:"date"`
+	Location string `json:"location"`
+	Name     string `json:"name"`
+	Open     bool   `json:"open"`
 }

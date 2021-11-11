@@ -21,6 +21,10 @@ func (r *gameResolver) Winner(ctx context.Context, obj *internalModel.Game) (*mo
 	return r.store.GetPlayerByID(obj.WinnerId)
 }
 
+func (r *gameResolver) Tournament(ctx context.Context, obj *internalModel.Game) (*model.Tournament, error) {
+	return r.store.GetTournament(obj.TournamentId)
+}
+
 func (r *mutationResolver) AddPlayer(ctx context.Context, name string) (*model.Player, error) {
 	panic(fmt.Errorf("not implemented"))
 }
@@ -36,11 +40,8 @@ func (r *queryResolver) Players(ctx context.Context, limit int, offset int) ([]*
 	})
 }
 
-func (r *queryResolver) Games(ctx context.Context, limit int, offset int) ([]*internalModel.Game, error) {
-	return r.store.GetGames(db.GameRequest{
-		Limit:  limit,
-		Offset: offset,
-	})
+func (r *queryResolver) Games(ctx context.Context, request *model.GameRequest) ([]*internalModel.Game, error) {
+	return r.store.GetGames(gqlReguestToDb(request))
 }
 
 // Game returns generated.GameResolver implementation.
@@ -55,13 +56,3 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 type gameResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *gameResolver) LoserScoer(ctx context.Context, obj *internalModel.Game) (*int, error) {
-	panic(fmt.Errorf("not implemented"))
-}
