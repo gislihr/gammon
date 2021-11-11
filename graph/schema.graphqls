@@ -16,6 +16,10 @@ type Game {
   loser: Player!
   winner: Player!
   length: Int!
+  round: Int!
+  created: String!
+  winnerScore: Int
+  loserScore: Int
 }
 
 type Query {

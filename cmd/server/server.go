@@ -9,7 +9,6 @@ import (
 	"github.com/gislihr/gammon/graph"
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/pkg/gammon/db"
-	"github.com/gislihr/gammon/pkg/gammon/db/store"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -27,7 +26,7 @@ func main() {
 	config := config{}
 	envconfig.MustProcess("", &config)
 
-	db := db.MustConnect(db.Options{
+	DB := db.MustConnect(db.Options{
 		Host:     config.DBHost,
 		Port:     config.DBPort,
 		User:     config.DBUser,
@@ -36,7 +35,7 @@ func main() {
 		UseSSL:   config.DBSSL,
 	})
 
-	s := store.NewStore(db)
+	s := db.NewStore(DB)
 	resolver := graph.NewResolver(s)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))

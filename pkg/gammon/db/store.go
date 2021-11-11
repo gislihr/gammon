@@ -1,6 +1,7 @@
-package store
+package db
 
 import (
+	sq "github.com/Masterminds/squirrel"
 	"github.com/gislihr/gammon/graph/model"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
 	"github.com/jmoiron/sqlx"
@@ -36,6 +37,10 @@ type player struct {
 	Experience int     `db:"experience"`
 }
 
+var playerFields = []string{
+	"id", "name", "elo", "short_name", "email", "experience",
+}
+
 func (p player) toModel() *model.Player {
 	return &model.Player{
 		ID:          p.Id,
@@ -56,18 +61,30 @@ func playersToModels(ps []player) []*model.Player {
 }
 
 type game struct {
-	Id       int `db:"id"`
-	WinnerId int `db:"winner_id"`
-	LoserId  int `db:"loser_id"`
-	Length   int `db:"length"`
+	Id          int    `db:"id"`
+	WinnerId    int    `db:"winner_id"`
+	LoserId     int    `db:"loser_id"`
+	Length      int    `db:"length"`
+	Round       int    `db:"round"`
+	Created     string `db:"created"`
+	WinnerScore *int   `db:"score_winner"`
+	LoserScore  *int   `db:"score_loser"`
+}
+
+var gameFields = []string{
+	"id", "winner_id", "loser_id", "length", "round", "created", "score_winner", "score_loser",
 }
 
 func (g game) toModel() *internalModel.Game {
 	return &internalModel.Game{
-		Id:       g.Id,
-		WinnerId: g.WinnerId,
-		LoserId:  g.LoserId,
-		Length:   g.Length,
+		Id:          g.Id,
+		WinnerId:    g.WinnerId,
+		LoserId:     g.LoserId,
+		Length:      g.Length,
+		Round:       g.Round,
+		Created:     g.Created,
+		WinnerScore: g.WinnerScore,
+		LoserScore:  g.LoserScore,
 	}
 }
 
@@ -88,15 +105,25 @@ func (s *Store) GetPlayerByID(id int) (*model.Player, error) {
 
 func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
 	var res []player
-	err := s.db.Select(&res,
-		"select id, name, elo, short_name, email, experience from player limit $1 offset $2",
-		pr.Limit, pr.Offset)
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query, args, err :=
+		psql.Select(playerFields...).From("player").Limit(uint64(pr.Limit)).Offset(uint64(pr.Offset)).OrderBy("elo desc").ToSql()
+	if err != nil {
+		return nil, err
+	}
 
+	err = s.db.Select(&res, query, args...)
 	return playersToModels(res), err
 }
 
 func (s *Store) GetGames(gr GameRequest) ([]*internalModel.Game, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query, args, err :=
+		psql.Select(gameFields...).From("game").Limit(uint64(gr.Limit)).Offset(uint64(gr.Offset)).OrderBy("created desc").ToSql()
+	if err != nil {
+		return nil, err
+	}
 	var res []game
-	err := s.db.Select(&res, "select id, winner_id, loser_id, length from game limit $1 offset $2", gr.Limit, gr.Offset)
+	err = s.db.Select(&res, query, args...)
 	return gamesToModels(res), err
 }

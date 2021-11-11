@@ -9,7 +9,7 @@ import (
 
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/graph/model"
-	"github.com/gislihr/gammon/pkg/gammon/db/store"
+	"github.com/gislihr/gammon/pkg/gammon/db"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
 )
 
@@ -30,14 +30,14 @@ func (r *queryResolver) Player(ctx context.Context, id int) (*model.Player, erro
 }
 
 func (r *queryResolver) Players(ctx context.Context, limit int, offset int) ([]*model.Player, error) {
-	return r.store.GetPlayers(store.PlayerRequest{
+	return r.store.GetPlayers(db.PlayerRequest{
 		Limit:  limit,
 		Offset: offset,
 	})
 }
 
 func (r *queryResolver) Games(ctx context.Context, limit int, offset int) ([]*internalModel.Game, error) {
-	return r.store.GetGames(store.GameRequest{
+	return r.store.GetGames(db.GameRequest{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -62,6 +62,6 @@ type queryResolver struct{ *Resolver }
 //  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //    it when you're done.
 //  - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *gameResolver) ID(ctx context.Context, obj *internalModel.Game) (int, error) {
+func (r *gameResolver) LoserScoer(ctx context.Context, obj *internalModel.Game) (*int, error) {
 	panic(fmt.Errorf("not implemented"))
 }
