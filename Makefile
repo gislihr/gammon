@@ -3,3 +3,6 @@ dev:
 
 gqlgen:
 	go run github.com/99designs/gqlgen generate
+
+deploy:
+	git push heroku main
