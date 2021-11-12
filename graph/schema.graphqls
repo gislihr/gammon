@@ -44,7 +44,3 @@ type Query {
   games(request: GameRequest): [Game!]!
 }
 
-type Mutation {
-  addPlayer(name: String!): Player!
-}
-
