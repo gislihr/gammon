@@ -9,20 +9,21 @@ import (
 
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/graph/model"
+	"github.com/gislihr/gammon/pkg/gammon/dataloader"
 	"github.com/gislihr/gammon/pkg/gammon/db"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
 )
 
 func (r *gameResolver) Loser(ctx context.Context, obj *internalModel.Game) (*model.Player, error) {
-	return r.store.GetPlayerByID(obj.LoserId)
+	return dataloader.For(ctx).PlayerById.Load(obj.LoserId)
 }
 
 func (r *gameResolver) Winner(ctx context.Context, obj *internalModel.Game) (*model.Player, error) {
-	return r.store.GetPlayerByID(obj.WinnerId)
+	return dataloader.For(ctx).PlayerById.Load(obj.WinnerId)
 }
 
 func (r *gameResolver) Tournament(ctx context.Context, obj *internalModel.Game) (*model.Tournament, error) {
-	return r.store.GetTournament(obj.TournamentId)
+	return dataloader.For(ctx).TournamentById.Load(obj.TournamentId)
 }
 
 func (r *mutationResolver) AddPlayer(ctx context.Context, name string) (*model.Player, error) {
@@ -30,7 +31,7 @@ func (r *mutationResolver) AddPlayer(ctx context.Context, name string) (*model.P
 }
 
 func (r *queryResolver) Player(ctx context.Context, id int) (*model.Player, error) {
-	return r.store.GetPlayerByID(id)
+	return dataloader.For(ctx).PlayerById.Load(id)
 }
 
 func (r *queryResolver) Players(ctx context.Context, limit int, offset int) ([]*model.Player, error) {

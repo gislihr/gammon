@@ -1,6 +1,8 @@
 package db
 
 import (
+	"fmt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gislihr/gammon/graph/model"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
@@ -100,6 +102,16 @@ func (t tournament) toModel() *model.Tournament {
 	}
 }
 
+func tournamentsToModels(ts []tournament) []*model.Tournament {
+	res := make([]*model.Tournament, len(ts))
+
+	for i, t := range ts {
+		res[i] = t.toModel()
+	}
+
+	return res
+}
+
 func (g game) toModel() *internalModel.Game {
 	return &internalModel.Game{
 		Id:           g.Id,
@@ -122,11 +134,17 @@ func gamesToModels(gs []game) []*internalModel.Game {
 	return res
 }
 
-func (s *Store) GetPlayerByID(id int) (*model.Player, error) {
-	p := player{}
-	err := s.db.Get(&p,
-		"select id, name, elo, short_name, email, experience from player where id = $1", id)
-	return p.toModel(), err
+func (s *Store) GetPlayersByIds(ids []int) ([]*model.Player, error) {
+	var res []player
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	query, args, err := psql.Select(playerFields...).From("player").Where(sq.Eq{"id": ids}).ToSql()
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.db.Select(&res, query, args...)
+	return playersToModels(res), err
 }
 
 func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
@@ -163,14 +181,15 @@ func (s *Store) GetGames(gr GameRequest) ([]*internalModel.Game, error) {
 	return gamesToModels(res), err
 }
 
-func (s Store) GetTournament(id int) (*model.Tournament, error) {
-	var res tournament
+func (s Store) GetTournaments(ids []int) ([]*model.Tournament, error) {
+	var res []tournament
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err := psql.Select(tournamentFields...).From("tournament").Where(sq.Eq{"id": id}).ToSql()
+	query, args, err := psql.Select(tournamentFields...).From("tournament").Where(sq.Eq{"id": ids}).ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.db.Get(&res, query, args...)
-	return res.toModel(), err
+	fmt.Println(ids)
+	err = s.db.Select(&res, query, args...)
+	return tournamentsToModels(res), err
 }

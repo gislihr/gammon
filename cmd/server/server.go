@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gislihr/gammon/graph"
 	"github.com/gislihr/gammon/graph/generated"
+	"github.com/gislihr/gammon/pkg/gammon/dataloader"
 	"github.com/gislihr/gammon/pkg/gammon/db"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -39,9 +40,10 @@ func main() {
 	resolver := graph.NewResolver(s)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
+	srvWithDatalaoder := dataloader.Middleware(*s, srv)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	http.Handle("/query", srvWithDatalaoder)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 	log.Fatal(http.ListenAndServe(":"+config.Port, nil))
