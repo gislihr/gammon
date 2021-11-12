@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/graph/model"
@@ -26,10 +25,6 @@ func (r *gameResolver) Tournament(ctx context.Context, obj *internalModel.Game) 
 	return dataloader.For(ctx).TournamentById.Load(obj.TournamentId)
 }
 
-func (r *mutationResolver) AddPlayer(ctx context.Context, name string) (*model.Player, error) {
-	panic(fmt.Errorf("not implemented"))
-}
-
 func (r *queryResolver) Player(ctx context.Context, id int) (*model.Player, error) {
 	return dataloader.For(ctx).PlayerById.Load(id)
 }
@@ -48,12 +43,8 @@ func (r *queryResolver) Games(ctx context.Context, request *model.GameRequest) (
 // Game returns generated.GameResolver implementation.
 func (r *Resolver) Game() generated.GameResolver { return &gameResolver{r} }
 
-// Mutation returns generated.MutationResolver implementation.
-func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
-
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
 type gameResolver struct{ *Resolver }
-type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

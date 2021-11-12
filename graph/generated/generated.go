@@ -37,7 +37,6 @@ type Config struct {
 
 type ResolverRoot interface {
 	Game() GameResolver
-	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
@@ -55,10 +54,6 @@ type ComplexityRoot struct {
 		Tournament  func(childComplexity int) int
 		Winner      func(childComplexity int) int
 		WinnerScore func(childComplexity int) int
-	}
-
-	Mutation struct {
-		AddPlayer func(childComplexity int, name string) int
 	}
 
 	Player struct {
@@ -90,9 +85,6 @@ type GameResolver interface {
 	Winner(ctx context.Context, obj *model1.Game) (*model.Player, error)
 
 	Tournament(ctx context.Context, obj *model1.Game) (*model.Tournament, error)
-}
-type MutationResolver interface {
-	AddPlayer(ctx context.Context, name string) (*model.Player, error)
 }
 type QueryResolver interface {
 	Player(ctx context.Context, id int) (*model.Player, error)
@@ -177,18 +169,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Game.WinnerScore(childComplexity), true
-
-	case "Mutation.addPlayer":
-		if e.complexity.Mutation.AddPlayer == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_addPlayer_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.AddPlayer(childComplexity, args["name"].(string)), true
 
 	case "Player.elo":
 		if e.complexity.Player.Elo == nil {
@@ -327,20 +307,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
-	case ast.Mutation:
-		return func(ctx context.Context) *graphql.Response {
-			if !first {
-				return nil
-			}
-			first = false
-			data := ec._Mutation(ctx, rc.Operation.SelectionSet)
-			var buf bytes.Buffer
-			data.MarshalGQL(&buf)
-
-			return &graphql.Response{
-				Data: buf.Bytes(),
-			}
-		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -413,10 +379,6 @@ type Query {
   games(request: GameRequest): [Game!]!
 }
 
-type Mutation {
-  addPlayer(name: String!): Player!
-}
-
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -424,21 +386,6 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
-
-func (ec *executionContext) field_Mutation_addPlayer_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["name"] = arg0
-	return args, nil
-}
 
 func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -854,48 +801,6 @@ func (ec *executionContext) _Game_tournament(ctx context.Context, field graphql.
 	res := resTmp.(*model.Tournament)
 	fc.Result = res
 	return ec.marshalNTournament2ᚖgithubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐTournament(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _Mutation_addPlayer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   true,
-		IsResolver: true,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Mutation_addPlayer_args(ctx, rawArgs)
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	fc.Args = args
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AddPlayer(rctx, args["name"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*model.Player)
-	fc.Result = res
-	return ec.marshalNPlayer2ᚖgithubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐPlayer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Player_id(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
@@ -2731,37 +2636,6 @@ func (ec *executionContext) _Game(ctx context.Context, sel ast.SelectionSet, obj
 				}
 				return res
 			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var mutationImplementors = []string{"Mutation"}
-
-func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, mutationImplementors)
-
-	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
-		Object: "Mutation",
-	})
-
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Mutation")
-		case "addPlayer":
-			out.Values[i] = ec._Mutation_addPlayer(ctx, field)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
