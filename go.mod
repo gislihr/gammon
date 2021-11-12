@@ -1,5 +1,6 @@
 module github.com/gislihr/gammon
 
+// +heroku goVersion go1.17
 go 1.17
 
 require (
@@ -7,7 +8,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.1
 	github.com/cosmtrek/air v1.27.3
 	github.com/jmoiron/sqlx v1.3.4
-	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.3
 	github.com/vektah/dataloaden v0.2.1-0.20190515034641-a19b9a6e7c9e
