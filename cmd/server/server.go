@@ -10,6 +10,7 @@ import (
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/pkg/gammon/dataloader"
 	"github.com/gislihr/gammon/pkg/gammon/db"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/kelseyhightower/envconfig"
 )
 
