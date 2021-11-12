@@ -1,8 +1,6 @@
 package db
 
 import (
-	"fmt"
-
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gislihr/gammon/graph/model"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
@@ -189,7 +187,6 @@ func (s Store) GetTournaments(ids []int) ([]*model.Tournament, error) {
 		return nil, err
 	}
 
-	fmt.Println(ids)
 	err = s.db.Select(&res, query, args...)
 	return tournamentsToModels(res), err
 }
