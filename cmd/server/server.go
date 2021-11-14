@@ -18,6 +18,14 @@ type config struct {
 	DatabaseURL string `envconfig:"DATABASE_URL" required:"true'`
 }
 
+func cors(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, r)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
+	})
+}
+
 func main() {
 	config := config{}
 	envconfig.MustProcess("", &config)
@@ -29,9 +37,10 @@ func main() {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 	srvWithDatalaoder := dataloader.Middleware(*s, srv)
+	srvWIthCOrs := cors(srvWithDatalaoder)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srvWithDatalaoder)
+	http.Handle("/query", srvWIthCOrs)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 	log.Fatal(http.ListenAndServe(":"+config.Port, nil))
