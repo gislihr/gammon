@@ -24,5 +24,10 @@ func gameRequestToDb(req model.GameRequest) db.GameRequest {
 }
 
 func playerRequestToDb(req model.PlayerRequest) db.PlayerRequest {
-	panic("not implemented")
+	return db.PlayerRequest{
+		ID:     req.ID,
+		Name:   req.Name,
+		Limit:  req.Limit,
+		Offset: req.Offset,
+	}
 }

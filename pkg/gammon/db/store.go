@@ -1,6 +1,9 @@
 package db
 
 import (
+	"fmt"
+	"strings"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/gislihr/gammon/graph/model"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
@@ -34,7 +37,8 @@ func (p PlayerRequest) toSql() (string, []interface{}, error) {
 	}
 
 	if p.Name != nil {
-		b = b.Where(sq.Eq{"name": *p.Name})
+		nameLower := strings.ToLower(*p.Name)
+		b = b.Where(sq.Like{"lower(name)": fmt.Sprintf("%%%s%%", nameLower)})
 	}
 
 	if p.Limit != nil {
@@ -173,6 +177,7 @@ func (s *Store) GetPlayersByIds(ids []int) ([]*model.Player, error) {
 func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
 	var res []player
 	query, args, err := pr.toSql()
+
 	if err != nil {
 		return nil, err
 	}
