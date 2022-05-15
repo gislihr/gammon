@@ -15,7 +15,7 @@ import (
 
 type config struct {
 	Port        string `envconfig:"PORT" default:"8080"`
-	DatabaseURL string `envconfig:"DATABASE_URL" required:"true'`
+	DatabaseURL string `envconfig:"DATABASE_URL" required:"true"`
 }
 
 func cors(h http.Handler) http.Handler {

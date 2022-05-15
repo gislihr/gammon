@@ -19,8 +19,33 @@ func NewStore(db *sqlx.DB) *Store {
 }
 
 type PlayerRequest struct {
-	Offset int
-	Limit  int
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+	ID     *int    `json:"id"`
+	Name   *string `json:"name"`
+}
+
+func (p PlayerRequest) toSql() (string, []interface{}, error) {
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+	b := psql.Select(playerFields...).From("player")
+
+	if p.ID != nil {
+		b = b.Where(sq.Eq{"id": *p.ID})
+	}
+
+	if p.Name != nil {
+		b = b.Where(sq.Eq{"name": *p.Name})
+	}
+
+	if p.Limit != nil {
+		b = b.Limit(uint64(*p.Limit))
+	}
+
+	if p.Offset != nil {
+		b = b.Offset(uint64(*p.Offset))
+	}
+
+	return b.ToSql()
 }
 
 type GameRequest struct {
@@ -45,12 +70,12 @@ var playerFields = []string{
 
 func (p player) toModel() *model.Player {
 	return &model.Player{
-		ID:          p.Id,
-		Name:        p.Name,
-		Elo:         p.Elo,
-		ShortName:   *p.ShortName,
-		Experiennce: p.Experience,
-		Email:       p.Email,
+		ID:         p.Id,
+		Name:       p.Name,
+		Elo:        p.Elo,
+		ShortName:  *p.ShortName,
+		Experience: p.Experience,
+		Email:      p.Email,
 	}
 }
 
@@ -147,9 +172,7 @@ func (s *Store) GetPlayersByIds(ids []int) ([]*model.Player, error) {
 
 func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
 	var res []player
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	query, args, err :=
-		psql.Select(playerFields...).From("player").Limit(uint64(pr.Limit)).Offset(uint64(pr.Offset)).OrderBy("elo desc").ToSql()
+	query, args, err := pr.toSql()
 	if err != nil {
 		return nil, err
 	}

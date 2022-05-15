@@ -9,7 +9,6 @@ import (
 	"github.com/gislihr/gammon/graph/generated"
 	"github.com/gislihr/gammon/graph/model"
 	"github.com/gislihr/gammon/pkg/gammon/dataloader"
-	"github.com/gislihr/gammon/pkg/gammon/db"
 	internalModel "github.com/gislihr/gammon/pkg/gammon/model"
 )
 
@@ -29,15 +28,12 @@ func (r *queryResolver) Player(ctx context.Context, id int) (*model.Player, erro
 	return dataloader.For(ctx).PlayerById.Load(id)
 }
 
-func (r *queryResolver) Players(ctx context.Context, limit int, offset int) ([]*model.Player, error) {
-	return r.store.GetPlayers(db.PlayerRequest{
-		Limit:  limit,
-		Offset: offset,
-	})
+func (r *queryResolver) Players(ctx context.Context, request model.PlayerRequest) ([]*model.Player, error) {
+	return r.store.GetPlayers(playerRequestToDb(request))
 }
 
-func (r *queryResolver) Games(ctx context.Context, request *model.GameRequest) ([]*internalModel.Game, error) {
-	return r.store.GetGames(gqlReguestToDb(request))
+func (r *queryResolver) Games(ctx context.Context, request model.GameRequest) ([]*internalModel.Game, error) {
+	return r.store.GetGames(gameRequestToDb(request))
 }
 
 // Game returns generated.GameResolver implementation.

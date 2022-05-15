@@ -5,7 +5,7 @@ import (
 	"github.com/gislihr/gammon/pkg/gammon/db"
 )
 
-func gqlReguestToDb(req *model.GameRequest) db.GameRequest {
+func gameRequestToDb(req model.GameRequest) db.GameRequest {
 	limit := 50
 	offset := 0
 	if req.Limit != nil {
@@ -21,4 +21,8 @@ func gqlReguestToDb(req *model.GameRequest) db.GameRequest {
 		WinnerId: req.WinnerID,
 		LoserId:  req.LoserID,
 	}
+}
+
+func playerRequestToDb(req model.PlayerRequest) db.PlayerRequest {
+	panic("not implemented")
 }

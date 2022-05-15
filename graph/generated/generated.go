@@ -57,18 +57,18 @@ type ComplexityRoot struct {
 	}
 
 	Player struct {
-		Elo         func(childComplexity int) int
-		Email       func(childComplexity int) int
-		Experiennce func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		ShortName   func(childComplexity int) int
+		Elo        func(childComplexity int) int
+		Email      func(childComplexity int) int
+		Experience func(childComplexity int) int
+		ID         func(childComplexity int) int
+		Name       func(childComplexity int) int
+		ShortName  func(childComplexity int) int
 	}
 
 	Query struct {
-		Games   func(childComplexity int, request *model.GameRequest) int
+		Games   func(childComplexity int, request model.GameRequest) int
 		Player  func(childComplexity int, id int) int
-		Players func(childComplexity int, limit int, offset int) int
+		Players func(childComplexity int, request model.PlayerRequest) int
 	}
 
 	Tournament struct {
@@ -88,8 +88,8 @@ type GameResolver interface {
 }
 type QueryResolver interface {
 	Player(ctx context.Context, id int) (*model.Player, error)
-	Players(ctx context.Context, limit int, offset int) ([]*model.Player, error)
-	Games(ctx context.Context, request *model.GameRequest) ([]*model1.Game, error)
+	Players(ctx context.Context, request model.PlayerRequest) ([]*model.Player, error)
+	Games(ctx context.Context, request model.GameRequest) ([]*model1.Game, error)
 }
 
 type executableSchema struct {
@@ -184,12 +184,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Player.Email(childComplexity), true
 
-	case "Player.experiennce":
-		if e.complexity.Player.Experiennce == nil {
+	case "Player.experience":
+		if e.complexity.Player.Experience == nil {
 			break
 		}
 
-		return e.complexity.Player.Experiennce(childComplexity), true
+		return e.complexity.Player.Experience(childComplexity), true
 
 	case "Player.id":
 		if e.complexity.Player.ID == nil {
@@ -222,7 +222,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Games(childComplexity, args["request"].(*model.GameRequest)), true
+		return e.complexity.Query.Games(childComplexity, args["request"].(model.GameRequest)), true
 
 	case "Query.player":
 		if e.complexity.Query.Player == nil {
@@ -246,7 +246,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Players(childComplexity, args["limit"].(int), args["offset"].(int)), true
+		return e.complexity.Query.Players(childComplexity, args["request"].(model.PlayerRequest)), true
 
 	case "Tournament.date":
 		if e.complexity.Tournament.Date == nil {
@@ -333,11 +333,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
-type Tournament {
+	{Name: "graph/schema.graphqls", Input: `type Tournament {
   id: ID!
   date: String!
   location: String!
@@ -351,7 +347,7 @@ type Player {
   shortName: String!
   email: String
   elo: Float!
-  experiennce: Int!
+  experience: Int!
 }
 
 input GameRequest {
@@ -359,6 +355,13 @@ input GameRequest {
   offset: Int
   winnerId: Int
   loserId: Int
+}
+
+input PlayerRequest {
+  limit: Int
+  offset: Int
+  id: Int
+  name: String
 }
 
 type Game {
@@ -375,8 +378,8 @@ type Game {
 
 type Query {
   player(id: Int!): Player!
-  players(limit: Int!, offset: Int!): [Player!]!
-  games(request: GameRequest): [Game!]!
+  players(request: PlayerRequest!): [Player!]!
+  games(request: GameRequest!): [Game!]!
 }
 
 `, BuiltIn: false},
@@ -405,10 +408,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_games_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *model.GameRequest
+	var arg0 model.GameRequest
 	if tmp, ok := rawArgs["request"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
-		arg0, err = ec.unmarshalOGameRequest2ᚖgithubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐGameRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNGameRequest2githubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐGameRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -435,24 +438,15 @@ func (ec *executionContext) field_Query_player_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_players_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+	var arg0 model.PlayerRequest
+	if tmp, ok := rawArgs["request"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("request"))
+		arg0, err = ec.unmarshalNPlayerRequest2githubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐPlayerRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["limit"] = arg0
-	var arg1 int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg1
+	args["request"] = arg0
 	return args, nil
 }
 
@@ -975,7 +969,7 @@ func (ec *executionContext) _Player_elo(ctx context.Context, field graphql.Colle
 	return ec.marshalNFloat2float64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Player_experiennce(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
+func (ec *executionContext) _Player_experience(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -993,7 +987,7 @@ func (ec *executionContext) _Player_experiennce(ctx context.Context, field graph
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Experiennce, nil
+		return obj.Experience, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1077,7 +1071,7 @@ func (ec *executionContext) _Query_players(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Players(rctx, args["limit"].(int), args["offset"].(int))
+		return ec.resolvers.Query().Players(rctx, args["request"].(model.PlayerRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1119,7 +1113,7 @@ func (ec *executionContext) _Query_games(ctx context.Context, field graphql.Coll
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Games(rctx, args["request"].(*model.GameRequest))
+		return ec.resolvers.Query().Games(rctx, args["request"].(model.GameRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2551,6 +2545,53 @@ func (ec *executionContext) unmarshalInputGameRequest(ctx context.Context, obj i
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputPlayerRequest(ctx context.Context, obj interface{}) (model.PlayerRequest, error) {
+	var it model.PlayerRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "limit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+			it.Limit, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "offset":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
+			it.Offset, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.ID, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2680,8 +2721,8 @@ func (ec *executionContext) _Player(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "experiennce":
-			out.Values[i] = ec._Player_experiennce(ctx, field, obj)
+		case "experience":
+			out.Values[i] = ec._Player_experience(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3149,6 +3190,11 @@ func (ec *executionContext) marshalNGame2ᚖgithubᚗcomᚋgislihrᚋgammonᚋpk
 	return ec._Game(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNGameRequest2githubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐGameRequest(ctx context.Context, v interface{}) (model.GameRequest, error) {
+	res, err := ec.unmarshalInputGameRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalIntID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3235,6 +3281,11 @@ func (ec *executionContext) marshalNPlayer2ᚖgithubᚗcomᚋgislihrᚋgammonᚋ
 		return graphql.Null
 	}
 	return ec._Player(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNPlayerRequest2githubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐPlayerRequest(ctx context.Context, v interface{}) (model.PlayerRequest, error) {
+	res, err := ec.unmarshalInputPlayerRequest(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3545,14 +3596,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	return graphql.MarshalBoolean(*v)
-}
-
-func (ec *executionContext) unmarshalOGameRequest2ᚖgithubᚗcomᚋgislihrᚋgammonᚋgraphᚋmodelᚐGameRequest(ctx context.Context, v interface{}) (*model.GameRequest, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputGameRequest(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

@@ -10,12 +10,19 @@ type GameRequest struct {
 }
 
 type Player struct {
-	ID          int     `json:"id"`
-	Name        string  `json:"name"`
-	ShortName   string  `json:"shortName"`
-	Email       *string `json:"email"`
-	Elo         float64 `json:"elo"`
-	Experiennce int     `json:"experiennce"`
+	ID         int     `json:"id"`
+	Name       string  `json:"name"`
+	ShortName  string  `json:"shortName"`
+	Email      *string `json:"email"`
+	Elo        float64 `json:"elo"`
+	Experience int     `json:"experience"`
+}
+
+type PlayerRequest struct {
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+	ID     *int    `json:"id"`
+	Name   *string `json:"name"`
 }
 
 type Tournament struct {

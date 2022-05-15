@@ -1,7 +1,3 @@
-# GraphQL schema example
-#
-# https://gqlgen.com/getting-started/
-
 type Tournament {
   id: ID!
   date: String!
@@ -16,7 +12,7 @@ type Player {
   shortName: String!
   email: String
   elo: Float!
-  experiennce: Int!
+  experience: Int!
 }
 
 input GameRequest {
@@ -24,6 +20,13 @@ input GameRequest {
   offset: Int
   winnerId: Int
   loserId: Int
+}
+
+input PlayerRequest {
+  limit: Int
+  offset: Int
+  id: Int
+  name: String
 }
 
 type Game {
@@ -40,7 +43,7 @@ type Game {
 
 type Query {
   player(id: Int!): Player!
-  players(limit: Int!, offset: Int!): [Player!]!
-  games(request: GameRequest): [Game!]!
+  players(request: PlayerRequest!): [Player!]!
+  games(request: GameRequest!): [Game!]!
 }
 
