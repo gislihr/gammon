@@ -46,4 +46,3 @@ type Query {
   players(request: PlayerRequest!): [Player!]!
   games(request: GameRequest!): [Game!]!
 }
-

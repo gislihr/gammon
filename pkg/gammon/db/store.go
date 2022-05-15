@@ -190,14 +190,17 @@ func (s *Store) GetGames(gr GameRequest) ([]*internalModel.Game, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	queryBuilder := psql.Select(gameFields...).From("game").Limit(uint64(gr.Limit)).Offset(uint64(gr.Offset)).OrderBy("id desc")
 
+	or := sq.Or{}
+
 	if gr.WinnerId != nil {
-		queryBuilder = queryBuilder.Where(sq.Eq{"winner_id": gr.WinnerId})
+		or = sq.Or{or, sq.Eq{"winner_id": gr.WinnerId}}
 	}
 
 	if gr.LoserId != nil {
-		queryBuilder = queryBuilder.Where(sq.Eq{"loser_id": gr.LoserId})
+		or = sq.Or{or, sq.Eq{"loser_id": gr.LoserId}}
 	}
 
+	queryBuilder = queryBuilder.Where(or)
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
 		return nil, err
