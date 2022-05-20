@@ -189,6 +189,7 @@ func (s *Store) GetPlayers(pr PlayerRequest) ([]*model.Player, error) {
 func (s *Store) GetGames(gr GameRequest) ([]*internalModel.Game, error) {
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	queryBuilder := psql.Select(gameFields...).From("game").Limit(uint64(gr.Limit)).Offset(uint64(gr.Offset)).OrderBy("id desc")
+	queryBuilder = queryBuilder.OrderBy("date asc")
 
 	or := sq.Or{}
 
