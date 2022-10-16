@@ -49,6 +49,8 @@ func (p PlayerRequest) toSql() (string, []interface{}, error) {
 		b = b.Offset(uint64(*p.Offset))
 	}
 
+	b = b.OrderBy("elo desc")
+
 	return b.ToSql()
 }
 
