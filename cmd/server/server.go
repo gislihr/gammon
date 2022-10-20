@@ -38,9 +38,9 @@ func main() {
 	config := config{}
 	envconfig.MustProcess("", &config)
 
-	DB := db.MustConnect(config.DatabaseURL)
+	database := db.MustConnect(config.DatabaseURL)
 
-	s := db.NewStore(DB)
+	s := db.NewStore(database)
 	resolver := graph.NewResolver(s)
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
