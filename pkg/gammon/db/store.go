@@ -224,3 +224,8 @@ func (s Store) GetTournaments(ids []int) ([]*model.Tournament, error) {
 	err = s.db.Select(&res, query, args...)
 	return tournamentsToModels(res), err
 }
+
+func (s Store) Healthy() (res int, err error) {
+	err = s.db.Get(&res, "select 1")
+	return
+}

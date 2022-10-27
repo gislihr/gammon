@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 
@@ -49,7 +50,33 @@ func main() {
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srvWIthCOrs)
+	http.HandleFunc("/healthy", func(w http.ResponseWriter, r *http.Request) {
+		type response struct {
+			Healthy bool `json:"healthy"`
+		}
+
+		res, err := s.Healthy()
+		if err == nil && res == 1 {
+			respond(response{Healthy: true}, w)
+			return
+		}
+
+		respond(response{Healthy: false}, w)
+		return
+	})
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", config.Port)
 	log.Fatal(http.ListenAndServe(":"+config.Port, nil))
+}
+
+//Respond marshals data as json and writes to response writer
+func respond(data interface{}, w http.ResponseWriter) {
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		w.WriteHeader(500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(bytes)
 }
